@@ -16,6 +16,8 @@ You perform these actions at your own risk. Possible consequences:
    - [STLink Driver]
    - [Modification Tool](https://github.com/Sharkboy-j/ninebot-g3-max-vcu-speed-hack/releases/latest)
 
+Target MCU: `AT32F415CBT7` (128 KB flash).
+
 ## 🛠 Preparation
 1. Install the driver (`dpinst_amd64.exe`)
 2. Extract the software archive to a folder
@@ -70,6 +72,13 @@ Change region? (Y/N): <u>**Y**</u>
 3. Disconnect when `oocd\scripts/mem_helper.tcl", line 37` appears
 5. The transfer is complete when the console shows:  
 `wrote 131072 bytes from file MEMORY_G3.bin.patched.bin to flash bank 0 at offset 0x00000000 in 3.471415s (36.873 KiB/s)`
+
+If flashing fails with `flash memory write protected`, disable access protection first:
+- Windows: `fix_option_bytes.bat`
+- macOS: `./fix_option_bytes_mac.sh`
+
+Then power-cycle the VCU and run flashing again.
+If flashing fails with `flash write algorithm aborted by target`, add `-c "set WORKAREASIZE 0"` before `-f .../at32.cfg` in the flash script (disables the RAM block loader; much slower but sometimes needed).
 
 ### 4. Post-Flash Setup
 1. Unbind the scooter in the app

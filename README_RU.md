@@ -16,6 +16,8 @@
    - [Драйвер STLink]
    - [ПО для модификации](https://github.com/Sharkboy-j/ninebot-g3-max-vcu-speed-hack/releases/latest)
 
+Целевой MCU: `AT32F415CBT7` (Flash 128 KB).
+
 ## 🛠 Подготовка
 1. Установите драйвер (`dpinst_amd64.exe`)
 2. Распакуйте архив с ПО в папку **без русских символов в пути**
@@ -23,6 +25,20 @@
    - `dump_memory.bat` - чтение дампа
    - `fix_vcu.exe` - модификация
    - `flash_memory_patched.bat` - запись прошивки
+
+### macOS (новые скрипты)
+Для macOS добавлены аналоги:
+- `dump_memory_mac.sh`
+- `flash_memory_original_mac.sh`
+- `flash_memory_patched_mac.sh`
+
+Сборка OpenOCD (Artery fork) для macOS:
+```bash
+chmod +x build_openocd_artery_mac.sh
+./build_openocd_artery_mac.sh "https://github.com/ArteryTek/openocd.git" "$(pwd)/.build" "$(pwd)/.local/openocd-artery"
+```
+
+После сборки можно запускать mac-скрипты напрямую, они автоматически используют локальный бинарник `./.local/openocd-artery/bin/openocd`.
 
 ## 🔌 Подключение ST-Link
 Перед подключением внимательно посмотрите на распиновку своего ST-Link, она может различаться в зависимости от вашего экземпляра
@@ -68,6 +84,13 @@ Change region? (Y/N): <u>**Y**</u>
 2. Запустите `flash_memory_patched.bat`
 3. Разомкните при появлении `oocd\scripts/mem_helper.tcl", line 37`
 5. Процесс передачи будет завершён когда в выводе консоли можно будет увидеть строчку вида `wrote 131072 bytes from file MEMORY_G3.bin.patched.bin to flash bank 0 at offset 0x00000000 in 3.471415s (36.873 KiB/s)`
+
+Если при прошивке есть ошибка `flash memory write protected`, сначала снимите защиту:
+- Windows: `fix_option_bytes.bat`
+- macOS: `./fix_option_bytes_mac.sh`
+
+После этого отключите/подключите питание VCU и запустите прошивку снова.
+Если прошивка падает с `flash write algorithm aborted by target`, добавьте в команду OpenOCD `-c "set WORKAREASIZE 0"` перед `-f .../at32.cfg` (отключает блочный алгоритм в RAM; сильно медленнее, иногда помогает).
 
 ### 4. Настройка после прошивки
 1. Отвяжите самокат в приложении
